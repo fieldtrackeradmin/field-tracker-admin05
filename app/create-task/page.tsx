@@ -2,279 +2,269 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { PlusCircle, User, Tag, MapPin, Store, Package, Truck, CheckCircle } from "lucide-react";
 
-type Employee = {
-  id: string;
-  name: string;
+type Employee = { id: string; name: string };
+
+const inputStyle: React.CSSProperties = {
+  width: "100%", padding: "10px 14px", borderRadius: 9,
+  border: "1px solid #e5e7eb", fontSize: 14, color: "#111827",
+  outline: "none", background: "#fff", boxSizing: "border-box",
+  transition: "border-color 0.15s",
 };
 
+const labelStyle: React.CSSProperties = {
+  fontSize: 12, fontWeight: 700, color: "#374151",
+  display: "block", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6,
+};
+
+function Field({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <div>
+      <label style={labelStyle}>
+        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          {icon} {label}
+        </span>
+      </label>
+      {children}
+    </div>
+  );
+}
+
 export default function CreateTaskPage() {
-
-  const [title, setTitle] = useState("");
-  const [taskType, setTaskType] = useState("");
-  const [employee, setEmployee] = useState("");
-
-  const [area, setArea] = useState("");
-  const [targetShops, setTargetShops] = useState("");
-  const [targetOrders, setTargetOrders] = useState("");
-
+  const [title,            setTitle]            = useState("");
+  const [taskType,         setTaskType]         = useState("");
+  const [employee,         setEmployee]         = useState("");
+  const [area,             setArea]             = useState("");
+  const [targetShops,      setTargetShops]      = useState("");
+  const [targetOrders,     setTargetOrders]     = useState("");
   const [deliveryLocation, setDeliveryLocation] = useState("");
-  const [deliveryItem, setDeliveryItem] = useState("");
+  const [deliveryItem,     setDeliveryItem]     = useState("");
+  const [employees,        setEmployees]        = useState<Employee[]>([]);
+  const [loading,          setLoading]          = useState(false);
+  const [success,          setSuccess]          = useState(false);
+  const [error,            setError]            = useState("");
 
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    fetchEmployees();
-  }, []);
-
-  /* FETCH EMPLOYEES */
+  useEffect(() => { fetchEmployees(); }, []);
 
   const fetchEmployees = async () => {
-
-    const { data, error } = await supabase
-      .from("users")
-      .select("id,name")
-      .eq("role", "employee");
-
-    if (error) {
-      console.log("Employee fetch error:", error);
-      return;
-    }
-
+    const { data } = await supabase.from("users").select("id,name").eq("role", "employee");
     setEmployees(data || []);
   };
 
-  /* RESET FORM */
-
   const resetForm = () => {
-    setTitle("");
-    setTaskType("");
-    setEmployee("");
-    setArea("");
-    setTargetShops("");
-    setTargetOrders("");
-    setDeliveryLocation("");
-    setDeliveryItem("");
+    setTitle(""); setTaskType(""); setEmployee("");
+    setArea(""); setTargetShops(""); setTargetOrders("");
+    setDeliveryLocation(""); setDeliveryItem("");
+    setError("");
   };
-
-  /* CREATE TASK */
 
   const handleCreate = async () => {
-
-    if (!title || !taskType || !employee) {
-      alert("Please fill required fields");
-      return;
-    }
+    setError("");
+    if (!title || !taskType || !employee) { setError("Please fill all required fields."); return; }
+    if (taskType === "shop_visit" && (!area || !targetShops || !targetOrders)) { setError("Please fill all shop visit details."); return; }
+    if (taskType === "delivery"   && (!deliveryLocation || !deliveryItem))     { setError("Please fill all delivery details."); return; }
 
     setLoading(true);
-
     try {
-
-      let taskData: any = {
-        title: title.trim(),
-        task_type: taskType,
-        employee_id: employee,
-        status: "pending",
-        created_at: new Date().toISOString()
+      const taskData: any = {
+        title: title.trim(), task_type: taskType,
+        employee_id: employee, status: "pending",
+        created_at: new Date().toISOString(),
       };
-
-      /* SHOP VISIT TASK */
-
       if (taskType === "shop_visit") {
-
-        if (!area || !targetShops || !targetOrders) {
-          alert("Fill shop visit details");
-          setLoading(false);
-          return;
-        }
-
-        taskData.area_name = area;
-        taskData.target_shops = Number(targetShops);
+        taskData.area_name     = area;
+        taskData.target_shops  = Number(targetShops);
         taskData.target_orders = Number(targetOrders);
       }
-
-      /* DELIVERY TASK */
-
       if (taskType === "delivery") {
-
-        if (!deliveryLocation || !deliveryItem) {
-          alert("Fill delivery details");
-          setLoading(false);
-          return;
-        }
-
         taskData.delivery_location = deliveryLocation;
-        taskData.delivery_item = deliveryItem;
+        taskData.delivery_item     = deliveryItem;
       }
 
-      const { data, error } = await supabase
-        .from("tasks")
-        .insert(taskData)
-        .select();
+      const { error: err } = await supabase.from("tasks").insert(taskData).select();
+      if (err) { setError(err.message); return; }
 
-      if (error) {
-        console.log("Task creation error:", error);
-        alert(error.message);
-        setLoading(false);
-        return;
-      }
-
-      console.log("Task created:", data);
-
-      alert("Task Created Successfully");
-
+      setSuccess(true);
       resetForm();
-
-    } catch (err) {
-
-      console.log(err);
-      alert("Something went wrong");
-
+      setTimeout(() => setSuccess(false), 3000);
+    } catch {
+      setError("Something went wrong. Please try again.");
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
+  const isShopVisit = taskType === "shop_visit";
+  const isDelivery  = taskType === "delivery";
+
   return (
+    <div className="page">
 
-    <div style={{ padding: 30 }}>
-
-      <h1>Create Task</h1>
-
-      {/* TITLE */}
-
-      <div style={{ marginTop: 20 }}>
-        <input
-          type="text"
-          placeholder="Task Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          style={{ padding: 10, width: 300 }}
-        />
+      {/* Header */}
+      <div style={{ marginBottom: 28 }}>
+        <h1 className="pageTitle" style={{ marginBottom: 4 }}>Create Task</h1>
+        <p style={{ fontSize: 13, color: "#6b7280", margin: 0 }}>Assign a new task to a field employee</p>
       </div>
 
-      {/* EMPLOYEE */}
+      <div style={{ maxWidth: 600 }}>
+        <div className="card" style={{ marginTop: 0 }}>
 
-      <div style={{ marginTop: 20 }}>
-        <select
-          value={employee}
-          onChange={(e) => setEmployee(e.target.value)}
-          style={{ padding: 10, width: 300 }}
-        >
-          <option value="">Select Employee</option>
+          {/* Success banner */}
+          {success && (
+            <div style={{
+              background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10,
+              padding: "12px 16px", marginBottom: 20,
+              display: "flex", alignItems: "center", gap: 10,
+              fontSize: 14, fontWeight: 600, color: "#15803d",
+            }}>
+              <CheckCircle size={18} color="#16a34a" />
+              Task created successfully!
+            </div>
+          )}
 
-          {employees.map((emp) => (
-            <option key={emp.id} value={emp.id}>
-              {emp.name}
-            </option>
-          ))}
+          {/* Error banner */}
+          {error && (
+            <div style={{
+              background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10,
+              padding: "12px 16px", marginBottom: 20,
+              fontSize: 14, fontWeight: 600, color: "#dc2626",
+            }}>
+              ❌ {error}
+            </div>
+          )}
 
-        </select>
-      </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
-      {/* TASK TYPE */}
+            {/* Title */}
+            <Field label="Task Title" icon={<Tag size={12} />}>
+              <input
+                type="text" placeholder="e.g. Visit shops in Whitefield"
+                value={title} onChange={e => setTitle(e.target.value)}
+                style={inputStyle}
+                onFocus={e  => (e.target as HTMLInputElement).style.borderColor = "#6C63FF"}
+                onBlur={e   => (e.target as HTMLInputElement).style.borderColor = "#e5e7eb"}
+              />
+            </Field>
 
-      <div style={{ marginTop: 20 }}>
-        <select
-          value={taskType}
-          onChange={(e) => setTaskType(e.target.value)}
-          style={{ padding: 10, width: 300 }}
-        >
-          <option value="">Select Task Type</option>
-          <option value="shop_visit">Shop Visit Task</option>
-          <option value="delivery">Delivery Task</option>
-        </select>
-      </div>
+            {/* Employee */}
+            <Field label="Assign To" icon={<User size={12} />}>
+              <select value={employee} onChange={e => setEmployee(e.target.value)} style={{ ...inputStyle, cursor: "pointer" }}>
+                <option value="">Select employee…</option>
+                {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
+              </select>
+            </Field>
 
-      {/* SHOP VISIT FORM */}
+            {/* Task Type */}
+            <Field label="Task Type" icon={<Tag size={12} />}>
+              <div style={{ display: "flex", gap: 10 }}>
+                {[
+                  { value: "shop_visit", label: "🏪 Shop Visit", icon: <Store size={16} /> },
+                  { value: "delivery",   label: "🚚 Delivery",   icon: <Truck size={16} /> },
+                ].map(opt => (
+                  <button key={opt.value} onClick={() => setTaskType(opt.value)} style={{
+                    flex: 1, padding: "12px 10px", borderRadius: 10, cursor: "pointer",
+                    border: `2px solid ${taskType === opt.value ? "#6C63FF" : "#e5e7eb"}`,
+                    background: taskType === opt.value ? "#f0eeff" : "#fff",
+                    color:      taskType === opt.value ? "#6C63FF" : "#6b7280",
+                    fontSize: 14, fontWeight: 700, transition: "all 0.15s",
+                  }}>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </Field>
 
-      {taskType === "shop_visit" && (
+            {/* Shop Visit Fields */}
+            {isShopVisit && (
+              <div style={{ background: "#f9fafb", borderRadius: 12, padding: 16, border: "1px solid #f3f4f6", display: "flex", flexDirection: "column", gap: 14 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#6C63FF", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 2 }}>
+                  🏪 Shop Visit Details
+                </div>
 
-        <div style={{ marginTop: 20 }}>
+                <Field label="Area Name" icon={<MapPin size={12} />}>
+                  <input type="text" placeholder="e.g. Whitefield, Koramangala"
+                    value={area} onChange={e => setArea(e.target.value)}
+                    style={inputStyle}
+                    onFocus={e => (e.target as HTMLInputElement).style.borderColor = "#6C63FF"}
+                    onBlur={e  => (e.target as HTMLInputElement).style.borderColor = "#e5e7eb"}
+                  />
+                </Field>
 
-          <input
-            type="text"
-            placeholder="Area Name (Example: Whitefield)"
-            value={area}
-            onChange={(e) => setArea(e.target.value)}
-            style={{ padding: 10, width: 300 }}
-          />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  <Field label="Target Shops" icon={<Store size={12} />}>
+                    <input type="number" placeholder="0" min="0"
+                      value={targetShops} onChange={e => setTargetShops(e.target.value)}
+                      style={inputStyle}
+                      onFocus={e => (e.target as HTMLInputElement).style.borderColor = "#6C63FF"}
+                      onBlur={e  => (e.target as HTMLInputElement).style.borderColor = "#e5e7eb"}
+                    />
+                  </Field>
+                  <Field label="Target Orders" icon={<Package size={12} />}>
+                    <input type="number" placeholder="0" min="0"
+                      value={targetOrders} onChange={e => setTargetOrders(e.target.value)}
+                      style={inputStyle}
+                      onFocus={e => (e.target as HTMLInputElement).style.borderColor = "#6C63FF"}
+                      onBlur={e  => (e.target as HTMLInputElement).style.borderColor = "#e5e7eb"}
+                    />
+                  </Field>
+                </div>
+              </div>
+            )}
 
-          <div style={{ marginTop: 15 }}>
-            <input
-              type="number"
-              placeholder="Target Shops"
-              value={targetShops}
-              onChange={(e) => setTargetShops(e.target.value)}
-              style={{ padding: 10, width: 300 }}
-            />
+            {/* Delivery Fields */}
+            {isDelivery && (
+              <div style={{ background: "#f0f7ff", borderRadius: 12, padding: 16, border: "1px solid #dbeafe", display: "flex", flexDirection: "column", gap: 14 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#2563eb", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 2 }}>
+                  🚚 Delivery Details
+                </div>
+
+                <Field label="Delivery Location" icon={<MapPin size={12} />}>
+                  <input type="text" placeholder="e.g. Shop name or address"
+                    value={deliveryLocation} onChange={e => setDeliveryLocation(e.target.value)}
+                    style={inputStyle}
+                    onFocus={e => (e.target as HTMLInputElement).style.borderColor = "#2563eb"}
+                    onBlur={e  => (e.target as HTMLInputElement).style.borderColor = "#e5e7eb"}
+                  />
+                </Field>
+
+                <Field label="Delivery Item" icon={<Package size={12} />}>
+                  <input type="text" placeholder="e.g. SRR Rice 10KG, 5 Pack"
+                    value={deliveryItem} onChange={e => setDeliveryItem(e.target.value)}
+                    style={inputStyle}
+                    onFocus={e => (e.target as HTMLInputElement).style.borderColor = "#2563eb"}
+                    onBlur={e  => (e.target as HTMLInputElement).style.borderColor = "#e5e7eb"}
+                  />
+                </Field>
+              </div>
+            )}
+
+            {/* Submit */}
+            <div style={{ display: "flex", gap: 10, paddingTop: 4 }}>
+              <button onClick={resetForm} disabled={loading}
+                style={{ padding: "11px 20px", borderRadius: 10, border: "1.5px solid #e5e7eb", background: "#f9fafb", color: "#374151", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                Reset
+              </button>
+              <button onClick={handleCreate} disabled={loading} style={{
+                flex: 1, padding: "11px 20px", borderRadius: 10, border: "none",
+                background: loading ? "#93c5fd" : "#2563eb",
+                color: "#fff", fontSize: 14, fontWeight: 700,
+                cursor: loading ? "default" : "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                transition: "background 0.15s",
+              }}>
+                {loading
+                  ? <><div style={{ width: 16, height: 16, border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} /> Creating…</>
+                  : <><PlusCircle size={16} /> Create Task</>
+                }
+              </button>
+            </div>
+
           </div>
-
-          <div style={{ marginTop: 15 }}>
-            <input
-              type="number"
-              placeholder="Target Orders"
-              value={targetOrders}
-              onChange={(e) => setTargetOrders(e.target.value)}
-              style={{ padding: 10, width: 300 }}
-            />
-          </div>
-
         </div>
+      </div>
 
-      )}
-
-      {/* DELIVERY FORM */}
-
-      {taskType === "delivery" && (
-
-        <div style={{ marginTop: 20 }}>
-
-          <input
-            type="text"
-            placeholder="Delivery Location"
-            value={deliveryLocation}
-            onChange={(e) => setDeliveryLocation(e.target.value)}
-            style={{ padding: 10, width: 300 }}
-          />
-
-          <div style={{ marginTop: 15 }}>
-            <input
-              type="text"
-              placeholder="Delivery Item"
-              value={deliveryItem}
-              onChange={(e) => setDeliveryItem(e.target.value)}
-              style={{ padding: 10, width: 300 }}
-            />
-          </div>
-
-        </div>
-
-      )}
-
-      {/* CREATE BUTTON */}
-
-      <button
-        onClick={handleCreate}
-        disabled={loading}
-        style={{
-          marginTop: 30,
-          padding: "10px 20px",
-          background: "#2563eb",
-          color: "white",
-          border: "none",
-          borderRadius: 5,
-          cursor: "pointer"
-        }}
-      >
-        {loading ? "Creating..." : "Create Task"}
-      </button>
-
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
-
   );
 }

@@ -198,7 +198,7 @@ export default function TasksPage() {
           <div style={{ fontSize: 13, marginTop: 4 }}>Try adjusting your filters</div>
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 340px), 1fr))", gap: 16 }}>
           {filtered.map(task => {
             const type   = typeConfig[task.task_type]   || { icon: <Tag size={14} />,  bg: "#f3f4f6", color: "#6b7280", label: task.task_type };
             const status = statusConfig[task.status]    || { bg: "#f3f4f6", color: "#6b7280", label: task.status };
@@ -222,7 +222,7 @@ export default function TasksPage() {
                   {/* Header row */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12, gap: 8 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6 }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))", gap: 10, marginBottom: 16 }}>
                         <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 9px", borderRadius: 5, background: type.bg, color: type.color, display: "flex", alignItems: "center", gap: 4 }}>
                           {type.icon} {type.label}
                         </span>

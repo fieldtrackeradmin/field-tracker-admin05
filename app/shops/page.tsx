@@ -281,7 +281,7 @@ export default function ShopsPage() {
           <div style={{ fontSize: 13, marginTop: 4 }}>Try adjusting your filters</div>
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))", gap: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 380px), 1fr))", gap: 20 }}>
           {filtered.map(shop => {
             const order     = getOrder(shop.id);
             const orderData = parseOrder(order);

@@ -142,7 +142,8 @@ export default function MapView({ employeeId }: MapViewProps) {
       <MapContainer
         center={center}
         zoom={13}
-        style={{ height: "650px", width: "100%", borderRadius: 12, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
+        className="mapContainer"
+        style={{ width: "100%", borderRadius: 12, boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
 
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

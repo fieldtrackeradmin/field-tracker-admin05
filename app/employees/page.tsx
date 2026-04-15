@@ -152,77 +152,79 @@ export default function EmployeesPage() {
             <div style={{ fontSize: 13, color: "#9ca3af", marginTop: 4 }}>Try a different search</div>
           </div>
         ) : (
-          <table className="employeeTable">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Last Seen</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((emp) => {
-                const status   = getStatus(emp.last_active);
-                const isOnline = status === "Online";
-                return (
-                  <tr
-                    key={emp.id}
-                    className="row"
-                    onClick={() => router.push(`/employees/${emp.id}`)}
-                  >
-                    <td>
-                      <div className="nameCell">
-                        <div style={{
-                          width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-                          background: "linear-gradient(135deg, #6C63FF, #a78bfa)",
-                          color: "#fff", display: "flex", alignItems: "center",
-                          justifyContent: "center", fontWeight: 700, fontSize: 14,
-                          position: "relative",
+          <div className="tableContainer">
+            <table className="employeeTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th>Last Seen</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((emp) => {
+                  const status   = getStatus(emp.last_active);
+                  const isOnline = status === "Online";
+                  return (
+                    <tr
+                      key={emp.id}
+                      className="row"
+                      onClick={() => router.push(`/employees/${emp.id}`)}
+                    >
+                      <td>
+                        <div className="nameCell">
+                          <div style={{
+                            width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+                            background: "linear-gradient(135deg, #6C63FF, #a78bfa)",
+                            color: "#fff", display: "flex", alignItems: "center",
+                            justifyContent: "center", fontWeight: 700, fontSize: 14,
+                            position: "relative",
+                          }}>
+                            {emp.name?.charAt(0)?.toUpperCase()}
+                            {/* Online dot */}
+                            {isOnline && (
+                              <div style={{
+                                position: "absolute", bottom: -1, right: -1,
+                                width: 10, height: 10, borderRadius: "50%",
+                                background: "#22c55e", border: "2px solid #fff",
+                              }} />
+                            )}
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>{emp.name}</div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td style={{ color: "#6b7280", fontSize: 13 }}>{emp.email}</td>
+
+                      <td>
+                        <span style={{
+                          display: "inline-flex", alignItems: "center", gap: 5,
+                          padding: "4px 10px", borderRadius: 6, fontSize: 12, fontWeight: 600,
+                          background: isOnline ? "#dcfce7" : "#f3f4f6",
+                          color:      isOnline ? "#15803d" : "#6b7280",
                         }}>
-                          {emp.name?.charAt(0)?.toUpperCase()}
-                          {/* Online dot */}
-                          {isOnline && (
-                            <div style={{
-                              position: "absolute", bottom: -1, right: -1,
-                              width: 10, height: 10, borderRadius: "50%",
-                              background: "#22c55e", border: "2px solid #fff",
-                            }} />
-                          )}
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>{emp.name}</div>
-                        </div>
-                      </div>
-                    </td>
+                          <div style={{ width: 6, height: 6, borderRadius: "50%", background: isOnline ? "#22c55e" : "#d1d5db" }} />
+                          {status}
+                        </span>
+                      </td>
 
-                    <td style={{ color: "#6b7280", fontSize: 13 }}>{emp.email}</td>
+                      <td style={{ fontSize: 13, color: "#6b7280" }}>
+                        {getLastSeen(emp.last_active)}
+                      </td>
 
-                    <td>
-                      <span style={{
-                        display: "inline-flex", alignItems: "center", gap: 5,
-                        padding: "4px 10px", borderRadius: 6, fontSize: 12, fontWeight: 600,
-                        background: isOnline ? "#dcfce7" : "#f3f4f6",
-                        color:      isOnline ? "#15803d" : "#6b7280",
-                      }}>
-                        <div style={{ width: 6, height: 6, borderRadius: "50%", background: isOnline ? "#22c55e" : "#d1d5db" }} />
-                        {status}
-                      </span>
-                    </td>
-
-                    <td style={{ fontSize: 13, color: "#6b7280" }}>
-                      {getLastSeen(emp.last_active)}
-                    </td>
-
-                    <td style={{ textAlign: "right" }}>
-                      <ChevronRight size={16} color="#d1d5db" />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      <td style={{ textAlign: "right" }}>
+                        <ChevronRight size={16} color="#d1d5db" />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

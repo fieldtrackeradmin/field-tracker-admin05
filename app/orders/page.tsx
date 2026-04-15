@@ -565,7 +565,7 @@ export default function OrdersPage() {
                   <div style={{ borderTop: "1px solid #f3f4f6", padding: "16px 18px", background: isCompleted ? "#f0fdf4" : "#fafafa" }}>
 
                     {/* Meta chips */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))", gap: 10, marginBottom: 16 }}>
                       {[
                         { label: "Order ID",    value: order.id.slice(0, 18) + "…" },
                         { label: "Date & Time", value: `${formatDate(order.created_at)} · ${formatTime(order.created_at)}` },

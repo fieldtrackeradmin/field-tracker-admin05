@@ -22,8 +22,12 @@ const menu = [
   { name: "Orders",      path: "/orders",      icon: ShoppingBag },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+
+  const handleLinkClick = () => {
+    if (onNavigate) onNavigate();
+  };
 
   return (
     <div style={{
@@ -88,6 +92,7 @@ export default function Sidebar() {
             <Link
               key={item.path}
               href={item.path}
+              onClick={handleLinkClick}
               style={{
                 display: "flex",
                 alignItems: "center",

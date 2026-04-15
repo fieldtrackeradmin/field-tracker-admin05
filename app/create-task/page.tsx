@@ -191,7 +191,7 @@ export default function CreateTaskPage() {
                   />
                 </Field>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))", gap: 12 }}>
                   <Field label="Target Shops" icon={<Store size={12} />}>
                     <input type="number" placeholder="0" min="0"
                       value={targetShops} onChange={e => setTargetShops(e.target.value)}

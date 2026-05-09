@@ -10,7 +10,9 @@ import {
   ListChecks,
   PlusCircle,
   ShoppingBag,
+  LogOut,
 } from "lucide-react";
+import { logoutAction } from "@/app/actions/logout";
 
 const menu = [
   { name: "Dashboard",   path: "/dashboard",   icon: LayoutDashboard },
@@ -153,32 +155,76 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       {/* Bottom user area */}
-      <div style={{
-        margin: "16px 10px",
-        padding: "12px 14px",
-        borderRadius: 10,
-        background: "rgba(255,255,255,0.04)",
-        border: "1px solid rgba(255,255,255,0.07)",
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-      }}>
+      <div style={{ margin: "16px 10px 8px", display: "flex", flexDirection: "column", gap: 8 }}>
+        {/* User card */}
         <div style={{
-          width: 32, height: 32,
-          borderRadius: 9,
-          background: "linear-gradient(135deg, #374151, #1f2937)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          flexShrink: 0,
-          fontSize: 13,
-          fontWeight: 700,
-          color: "#d1d5db",
+          padding: "12px 14px",
+          borderRadius: 10,
+          background: "rgba(255,255,255,0.04)",
+          border: "1px solid rgba(255,255,255,0.07)",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
         }}>
-          A
+          <div style={{
+            width: 32, height: 32,
+            borderRadius: 9,
+            background: "linear-gradient(135deg, #374151, #1f2937)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0,
+            fontSize: 13,
+            fontWeight: 700,
+            color: "#d1d5db",
+          }}>
+            A
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: "#f3f4f6", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Admin</div>
+            <div style={{ fontSize: 11, color: "#6b7280", marginTop: 1 }}>Field Manager</div>
+          </div>
         </div>
-        <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: "#f3f4f6", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Admin</div>
-          <div style={{ fontSize: 11, color: "#6b7280", marginTop: 1 }}>Field Manager</div>
-        </div>
+
+        {/* Logout button */}
+        <form action={logoutAction}>
+          <button
+            type="submit"
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "10px 14px",
+              borderRadius: 9,
+              background: "transparent",
+              border: "1px solid rgba(239,68,68,0.2)",
+              color: "#f87171",
+              fontSize: 14,
+              fontWeight: 500,
+              cursor: "pointer",
+              transition: "all 0.15s",
+              marginBottom: 8,
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(239,68,68,0.1)";
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(239,68,68,0.5)";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background = "transparent";
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(239,68,68,0.2)";
+            }}
+          >
+            <div style={{
+              width: 30, height: 30,
+              borderRadius: 8,
+              background: "rgba(239,68,68,0.1)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}>
+              <LogOut size={15} color="#f87171" />
+            </div>
+            Logout
+          </button>
+        </form>
       </div>
 
     </div>
